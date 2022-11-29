@@ -3,17 +3,17 @@ from scrap_bs4.qhubo_cali.excepciones.excepciones import DomException
 
 
 class Seccion:
+    __dict_link = 'Link'
+    __dict_titulo = 'Titulo'
+    __dict_fecha = 'Fecha'
+    __dict_subtitulo = 'Subtitulo'
+    __dict_descripcion = 'Descripcion'
+    __desc_subtitulo = 'entry-content'
+
     def __init__(self, link: str):
-        self.__dict_link = 'Link'
-        self.__dict_titulo = 'Titulo'
-        self.__dict_fecha = 'Fecha'
-        self.__dict_subtitulo = 'Subtitulo'
-        self.__dict_descripcion = 'Descripcion'
-        self.__desc_subtitulo = 'entry-content'
         self.__dom = Comunes.carga_html(link)
         self.__noticia = {self.__dict_link: link}
         self.generar_datos()
-
 
     def genera_titulo(self):
         titulo = 'entry-title'
@@ -47,7 +47,9 @@ class Seccion:
         p = '/p'
         ruta = f'{Comunes.todo_doc()}{Comunes.slash()}{Comunes.div_class(self.__desc_subtitulo)}{p}'
         try:
-            self.__noticia[self.__dict_descripcion] = self.__dom.xpath(ruta)[0].text
+            texto = self.__dom.xpath(ruta)[0].text
+            texto = texto.replace('\\xa0', ' ')
+            self.__noticia[self.__dict_descripcion] = ' '.join(texto.split())
         except Exception as e:
             raise DomException(add=str(e))
 
@@ -56,7 +58,7 @@ class Seccion:
         self.genera_fecha()
         self.genera_subtitulo()
         self.genera_descripcion()
-        print(self.__noticia)
+        # print(self.__noticia)
 
     @property
     def noticia(self):
@@ -65,5 +67,4 @@ class Seccion:
 
 if __name__ == '__main__':
     seccion = Seccion(
-        'https://www.qhubocali.com/deportes/mundial-qatar-2022/el-9-de-la-seleccion-de-corea-del-sur-se-roba-mas-de'
-        '-una-mirada-en-qatar-2022/')
+        'https://www.qhubocali.com/asi-paso/roy-barreras-renunciaria-a-su-curul-en-julio-del-2023/')

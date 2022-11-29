@@ -4,13 +4,21 @@ from scrap_bs4.qhubo_cali.seccion import Seccion
 
 
 class QHubo:
+    __dict_ultimas = 'UltimasNoticias'
+    __dict_especiales = 'Especiales'
+    __fila_column = 'row three-col-row'
+    __columna_interna = 'col-33'
+    __bloque = 'thumb-block'
+    __url = 'https://www.qhubocali.com/'
+
     def __init__(self):
-        self.__dom = Comunes.carga_html('https://www.qhubocali.com/')
-        self.__fila_column = 'row three-col-row'
-        self.__columna_interna = 'col-33'
-        self.__bloque = 'thumb-block'
         self.__ultimas_noticias = []
         self.__noticias_especiales = []
+        self.__noticias_recolectadas = {}
+        self.__errores_noticias = {}
+        self.__errores_especiales = {}
+        self.__errores = {}
+        self.__dom = Comunes.carga_html(self.__url)
         self.cargar_datos()
 
     def cargar_ultimas_noticias(self):
@@ -44,10 +52,30 @@ class QHubo:
                 raise DomException(add=str(e))
 
     def cargar_datos(self):
+        ultimas = []
+        especiales = []
         self.cargar_ultimas_noticias()
         self.cargar_noticias_especiales()
         for link in self.__ultimas_noticias:
-            seccion = Seccion(link)
+            try:
+                seccion = Seccion(link)
+                ultimas.append(seccion.noticia)
+            except Exception as e:
+                print(e)
+                self.__errores_noticias[link] = str(e)
+        for link in self.__noticias_especiales:
+            try:
+                seccion_especial = Seccion(link)
+                especiales.append(seccion_especial.noticia)
+            except Exception as e:
+                print(e)
+                self.__errores_especiales[link] = str(e)
+        self.__errores[self.__dict_ultimas] = self.__errores_noticias
+        self.__errores[self.__dict_especiales] = self.__errores_especiales
+        self.__noticias_recolectadas[self.__dict_ultimas] = ultimas
+        self.__noticias_recolectadas[self.__dict_especiales] = especiales
+        print(self.__noticias_recolectadas)
+        print(self.__errores)
 
     @property
     def ultimas_noticias(self):
@@ -57,10 +85,10 @@ class QHubo:
     def noticias_especiales(self):
         return self.__noticias_especiales
 
+    @property
+    def errores(self):
+        return self.__errores
+
 
 if __name__ == '__main__':
     qhubo = QHubo()
-    # qhubo.cargar_ultimas_noticias()
-    # print(qhubo.ultimas_noticias)
-    # qhubo.cargar_noticias_especiales()
-    # print(qhubo.noticias_especiales)
