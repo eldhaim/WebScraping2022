@@ -1,8 +1,9 @@
 from scrap_bs4.qhubo_cali.comunes.comunes import Comunes
 from scrap_bs4.qhubo_cali.excepciones.excepciones import DomException
+from scrap_bs4.qhubo_cali.seccion import Seccion
 
 
-class Inicio:
+class QHubo:
     def __init__(self):
         self.__dom = Comunes.carga_html('https://www.qhubocali.com/')
         self.__fila_column = 'row three-col-row'
@@ -10,6 +11,7 @@ class Inicio:
         self.__bloque = 'thumb-block'
         self.__ultimas_noticias = []
         self.__noticias_especiales = []
+        self.cargar_datos()
 
     def cargar_ultimas_noticias(self):
         bloque_noticias = 'wp-block-lazyblock-categoria lazyblock-categoria-ZDYAMx'
@@ -26,7 +28,7 @@ class Inicio:
             except Exception as e:
                 raise DomException(add=str(e))
 
-    def especiales(self):  # DE LA MISMA FORMA QUE cargar_ultimas_noticias DEBE OBTENERSE LAS ESPECIALES
+    def cargar_noticias_especiales(self):  # DE LA MISMA FORMA QUE cargar_ultimas_noticias DEBE OBTENERSE LAS ESPECIALES
         bloque_noticias = 'wp-block-lazyblock-categoria lazyblock-categoria-dplBO'
         contenedor_interno = 'cate-block container especiales layout-2'
         lista_especiales = [bloque_noticias, contenedor_interno, self.__fila_column, self.__columna_interna]
@@ -41,6 +43,12 @@ class Inicio:
             except Exception as e:
                 raise DomException(add=str(e))
 
+    def cargar_datos(self):
+        self.cargar_ultimas_noticias()
+        self.cargar_noticias_especiales()
+        for link in self.__ultimas_noticias:
+            seccion = Seccion(link)
+
     @property
     def ultimas_noticias(self):
         return self.__ultimas_noticias
@@ -51,8 +59,8 @@ class Inicio:
 
 
 if __name__ == '__main__':
-    inicio = Inicio()
-    inicio.cargar_ultimas_noticias()
-    print(inicio.ultimas_noticias)
-    inicio.especiales()
-    print(inicio.noticias_especiales)
+    qhubo = QHubo()
+    # qhubo.cargar_ultimas_noticias()
+    # print(qhubo.ultimas_noticias)
+    # qhubo.cargar_noticias_especiales()
+    # print(qhubo.noticias_especiales)
